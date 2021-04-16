@@ -18,43 +18,50 @@ router.get('/stocked', async (req, res) => {
 	res.send({ message: 'This is where stocked info will live' })
 })
 
-router.post('/createDb', async (req, res) => {
-	const stockingFolder = `${process.cwd()}/stocking_data`
-	const files = await fs.promises.readdir(stockingFolder)
+// router.post('/createDb', async (req, res) => {
+// 	const stockingFolder = `${process.cwd()}/stocking_data`
+// 	const files = await fs.promises.readdir(stockingFolder)
 
-	// C style loop so that we can await
-	for (let i = 0; i < files.length; i += 1) {
-		const filePath = path.join(stockingFolder, files[i])
-		let events = []
+// 	// Drop before we reload
+// 	await StockedEvent.sync({ force: true })
 
-		// Pass the string contents to PapaParse, and then save the json to contents
-		Papa.parse(
-			await fs.promises.readFile(filePath, {
-				encoding: 'UTF8',
-			}),
-			{
-				complete: results => {
-					events = results.data
-				},
-				header: true,
-			}
-		)
+// 	// C style loop so that we can await
+// 	for (let i = 0; i < files.length; i += 1) {
+// 		const filePath = path.join(stockingFolder, files[i])
+// 		let events = []
 
-		events.forEach(event => {
-			const stockEvent = StockedEvent.build({
-				waterName: event['Water name'],
-				county: event.County,
-				species: event.Species,
-				quantity: parseInt(quantity),
-				avgLength: parseFloat(event['Average length']),
-				date: event['Date stocked'],
-			})
-		})
+// 		// Pass the string contents to PapaParse, and then save the json to contents
+// 		Papa.parse(
+// 			await fs.promises.readFile(filePath, {
+// 				encoding: 'UTF8',
+// 			}),
+// 			{
+// 				complete: results => {
+// 					events = results.data
+// 				},
+// 				header: true,
+// 				skipEmptyLines: true,
+// 			}
+// 		)
 
-		// console.log(contents)
-	}
+// 		// Load the contents
+// 		events.forEach(event => {
+// 			const stockEvent = StockedEvent.create({
+// 				waterName: event['Water name'],
+// 				county: event.County,
+// 				species: event.Species,
+// 				quantity: parseInt(event.Quantity),
+// 				avgLength: parseFloat(event['Average length']),
+// 				date: event['Date stocked'],
+// 			})
+// 		})
 
-	res.send({ message: 'not implemented yet' })
-})
+// 		// console.log(contents)
+// 	}
+
+// 	console.log('Records have been created in the database')
+
+// 	res.send({ message: 'not implemented yet' })
+// })
 
 module.exports = router

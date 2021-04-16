@@ -15,7 +15,7 @@ const StockedEvent = sequelize.define('StockedEvent', {
 	},
 	waterName: {
 		type: DataTypes.STRING,
-		allowNull: false,
+		// allowNull: false,
 		//   references: {
 		//       model: Location,
 		//       key: waterName
@@ -23,23 +23,23 @@ const StockedEvent = sequelize.define('StockedEvent', {
 	},
 	county: {
 		type: DataTypes.STRING,
-		allowNull: false,
+		// allowNull: false,
 	},
 	species: {
 		type: DataTypes.STRING,
-		allowNull: false,
+		// allowNull: false,
 	},
 	quantity: {
 		type: DataTypes.INTEGER,
-		allowNull: false,
+		// allowNull: false,
 	},
 	avgLength: {
 		type: DataTypes.DOUBLE,
-		allowNull: false,
+		// allowNull: false,
 	},
 	date: {
-		type: DataTypes.DATE,
-		allowNull: false,
+		type: DataTypes.STRING,
+		// allowNull: false,
 	},
 })
 
