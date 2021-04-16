@@ -3,7 +3,7 @@ const path = require('path')
 const Papa = require('papaparse')
 const _ = require('lodash')
 
-// const StockedEvent = require('./models/stockedEvent')
+const StockedEvent = require('./models/stockedEvent')
 const Location = require('./models/location')
 
 const { sequelize } = require('./models/stockedEvent')
@@ -12,8 +12,10 @@ const { sequelize } = require('./models/stockedEvent')
 	const files = await fs.promises.readdir(stockingFolder)
 
 	// Drop before we reload
-	// await StockedEvent.sync({ force: true })
+	await StockedEvent.sync({ force: true })
 	await Location.sync({ force: true })
+
+	const map = new Map()
 
 	// C style loop so that we can await
 	for (let i = 0; i < files.length; i += 1) {
@@ -36,56 +38,40 @@ const { sequelize } = require('./models/stockedEvent')
 
 		const promises = []
 
-		const locations = _.uniqBy(events, 'Water name')
-
-		for (let j = 0; j < locations.length; j += 1) {
-			// const [result, created] = await Location.findOrCreate({
-			// 	where: {
-			// 		waterName: locations[i]['Water name'],
-			// 		county: locations[i].County,
-			// 	},
-			// 	defaults: {
-			// 		waterName: locations[i]['Water name'],
-			// 		county: locations[i].County,
-			// 	},
-			// })
-
-			// if (created) {
-			// 	console.log('!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!')
-			// 	console.log(result)
-			// }
-
-			const result = await Location.findOne({
-				where: {
-					waterName: locations[i]['Water name'],
-				},
-			})
-
-			if (!result) {
-				await Location.create({
-					waterName: locations[j]['Water name'],
-					county: locations[j].County,
+		// Load the contents
+		events.forEach(event => {
+			if (!map.has(event['Water name'])) {
+				map.set(event['Water name'], {
+					waterName: event['Water name'],
+					county: event.County,
 				})
 			}
-		}
 
-		// Load the contents
-		// events.forEach(event => {
-		// 	promises.push(
-		// 		StockedEvent.create({
-		// 			waterName: event['Water name'],
-		// 			county: event.County,
-		// 			species: event.Species,
-		// 			quantity: parseInt(event.Quantity),
-		// 			avgLength: parseFloat(event['Average length']),
-		// 			date: event['Date stocked'],
-		// 		})
-		// 	)
-		// })
+			promises.push(
+				StockedEvent.create({
+					waterName: event['Water name'],
+					county: event.County,
+					species: event.Species,
+					quantity: parseInt(event.Quantity),
+					avgLength: parseFloat(event['Average length']),
+					date: event['Date stocked'],
+				})
+			)
+		})
 
 		console.log(`Waiting to write data for ${files[i]}`)
 		await Promise.all(promises)
 	}
+
+	const promises = []
+	map.forEach((value, key) => {
+		promises.push(
+			Location.create({
+				...value,
+			})
+		)
+	})
+	await Promise.all(promises)
 
 	await sequelize.close()
 
