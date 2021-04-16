@@ -1,7 +1,7 @@
 const { Sequelize, DataTypes } = require('sequelize')
 const sequelize = new Sequelize('sqlite::memory:')
 
-const User = sequelize.define('StockedEvent', {
+const User = sequelize.define('User', {
 	id: {
 		type: DataTypes.UUID,
 		defaultValue: Sequelize.UUIDV4,

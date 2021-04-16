@@ -1,0 +1,11 @@
+{
+    "sqltools.connections": [
+        {
+            "previewLimit": 50,
+            "driver": "SQLite",
+            "database": "${workspaceFolder:FishFinder}/API/db/database.sqlite",
+            "name": "devlopment"
+        }
+    ],
+    "sqltools.useNodeRuntime": true
+}

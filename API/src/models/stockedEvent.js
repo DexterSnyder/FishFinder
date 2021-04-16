@@ -1,7 +1,7 @@
 const { Sequelize, DataTypes } = require('sequelize')
 const sequelize = new Sequelize({
 	dialect: 'sqlite',
-	storage: `${process.cwd()}/src/db/database.sqlite`,
+	storage: `${process.cwd()}/db/database.sqlite`,
 })
 
 // const Location = require('./location')

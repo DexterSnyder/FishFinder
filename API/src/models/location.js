@@ -1,17 +1,18 @@
 const { Sequelize, DataTypes } = require('sequelize')
-const sequelize = new Sequelize('sqlite::memory:')
+const sequelize = new Sequelize({
+	dialect: 'sqlite',
+	storage: `${process.cwd()}/db/database.sqlite`,
+})
 
-const Location = sequelize.define('StockedEvent', {
+const Location = sequelize.define('Location', {
 	id: {
 		type: DataTypes.UUID,
 		defaultValue: Sequelize.UUIDV4,
 		primaryKey: true,
-		unique: true,
 	},
 	waterName: {
 		type: DataTypes.STRING,
 		allowNull: false,
-		unique: true,
 	},
 	county: {
 		type: DataTypes.STRING,
