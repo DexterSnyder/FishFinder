@@ -6,6 +6,7 @@ const { Sequelize } = require('sequelize')
 const fs = require('fs')
 const path = require('path')
 const Papa = require('papaparse')
+const StockedEvent = require('../models/stockedEvent')
 //-------------------------------
 
 const sequelize = new Sequelize({
@@ -24,7 +25,7 @@ router.post('/createDb', async (req, res) => {
 	// C style loop so that we can await
 	for (let i = 0; i < files.length; i += 1) {
 		const filePath = path.join(stockingFolder, files[i])
-		let contents
+		let events = []
 
 		// Pass the string contents to PapaParse, and then save the json to contents
 		Papa.parse(
@@ -33,13 +34,24 @@ router.post('/createDb', async (req, res) => {
 			}),
 			{
 				complete: results => {
-					contents = results.data
+					events = results.data
 				},
 				header: true,
 			}
 		)
 
-		console.log(contents)
+		events.forEach(event => {
+			const stockEvent = StockedEvent.build({
+				waterName: event['Water name'],
+				county: event.County,
+				species: event.Species,
+				quantity: parseInt(quantity),
+				avgLength: parseFloat(event['Average length']),
+				date: event['Date stocked'],
+			})
+		})
+
+		// console.log(contents)
 	}
 
 	res.send({ message: 'not implemented yet' })
