@@ -3,20 +3,25 @@ const path = require('path')
 const Papa = require('papaparse')
 const _ = require('lodash')
 
-const StockedEvent = require('./models/stockedEvent')
-const Location = require('./models/location')
+// const StockedEvent = require('./models/stockedEvent.model')
+// const Location = require('./models/location.model')
+const db = require('./models')
 
-const { sequelize } = require('./models/stockedEvent')
+// const { sequelize } = require('./models/stockedEvent.model')
+const { map } = require('lodash')
 ;(async () => {
 	const stockingFolder = './stocking_data'
 	const files = await fs.promises.readdir(stockingFolder)
 
+	await db.sequelize.sync({ force: true })
+
 	// Drop before we reload
-	await StockedEvent.sync({ force: true })
-	await Location.sync({ force: true })
+	// await db.stockedEvents.sync({ force: true })
+	// await db.locations.sync({ force: true })
 
 	const map = new Map()
 
+	const stockedEvents = []
 	// C style loop so that we can await
 	for (let i = 0; i < files.length; i += 1) {
 		const filePath = path.join(stockingFolder, files[i])
@@ -36,8 +41,6 @@ const { sequelize } = require('./models/stockedEvent')
 			}
 		)
 
-		const promises = []
-
 		// Load the contents
 		events.forEach(event => {
 			if (!map.has(event['Water name'])) {
@@ -47,33 +50,60 @@ const { sequelize } = require('./models/stockedEvent')
 				})
 			}
 
-			promises.push(
-				StockedEvent.create({
-					waterName: event['Water name'],
-					county: event.County,
-					species: event.Species,
-					quantity: parseInt(event.Quantity),
-					avgLength: parseFloat(event['Average length']),
-					date: event['Date stocked'],
-				})
-			)
+			stockedEvents.push({
+				waterName: event['Water name'],
+				county: event.County,
+				species: event.Species,
+				quantity: parseInt(event.Quantity),
+				avgLength: parseFloat(event['Average length']),
+				date: event['Date stocked'],
+			})
 		})
 
-		console.log(`Waiting to write data for ${files[i]}`)
-		await Promise.all(promises)
+		// console.log(`Waiting to write data for ${files[i]}`)
+		// await Promise.all(stockedEvents)
 	}
+
+	const idMap = new Map()
 
 	const promises = []
 	map.forEach((value, key) => {
 		promises.push(
-			Location.create({
+			db.locations.create({
 				...value,
 			})
 		)
 	})
-	await Promise.all(promises)
+	const resolvedArray = await Promise.all(promises)
+	resolvedArray.forEach(({ dataValues }) => {
+		idMap.set(dataValues.waterName, dataValues.id)
+	})
 
-	await sequelize.close()
+	console.log('###########################################################')
+
+	// promises.length = 0
+	// stockedEvents.forEach(stockEvent => {
+	// 	promises.push(
+	// 		db.stockedEvents.create({
+	// 			LocationId: idMap.get(stockEvent.waterName),
+	// 			...stockEvent,
+	// 		})
+	// 	)
+	// })
+	// await Promise.all(promises)
+
+	for (let i = 0; i < stockedEvents.length; i++) {
+		await db.stockedEvents.create({
+			LocationId: idMap.get(stockedEvents[i].waterName),
+			...stockedEvents[i],
+		})
+
+		if (i % 10 === 0) {
+			console.log('******************')
+		}
+	}
+
+	await db.sequelize.close()
 
 	console.log('Records have been created in the database')
 })()

@@ -1,29 +1,21 @@
 const { Sequelize, DataTypes } = require('sequelize')
+
 const sequelize = new Sequelize({
 	dialect: 'sqlite',
 	storage: `${process.cwd()}/db/database.sqlite`,
 })
 
-// const Location = require('./location')
+const db = {}
 
-const StockedEvent = sequelize.define('StockedEvent', {
+db.Sequelize = Sequelize
+db.sequelize = sequelize
+
+db.stockedEvents = sequelize.define('StockedEvent', {
 	id: {
 		type: DataTypes.UUID,
 		defaultValue: Sequelize.UUIDV4,
 		primaryKey: true,
 		unique: true,
-	},
-	waterName: {
-		type: DataTypes.STRING,
-		// allowNull: false,
-		//   references: {
-		//       model: Location,
-		//       key: waterName
-		// }
-	},
-	county: {
-		type: DataTypes.STRING,
-		// allowNull: false,
 	},
 	species: {
 		type: DataTypes.STRING,
@@ -43,4 +35,23 @@ const StockedEvent = sequelize.define('StockedEvent', {
 	},
 })
 
-module.exports = StockedEvent
+db.locations = sequelize.define('Location', {
+	id: {
+		type: DataTypes.UUID,
+		defaultValue: Sequelize.UUIDV4,
+		primaryKey: true,
+	},
+	waterName: {
+		type: DataTypes.STRING,
+		allowNull: false,
+	},
+	county: {
+		type: DataTypes.STRING,
+		allowNull: false,
+	},
+})
+
+db.locations.hasMany(db.stockedEvents)
+db.stockedEvents.belongsTo(db.locations)
+
+module.exports = db
