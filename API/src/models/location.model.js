@@ -1,5 +1,4 @@
 const { Sequelize, DataTypes } = require('sequelize')
-const { sequelize } = require('.')
 
 const getLocationModel = sequelize => {
 	return sequelize.define('Location', {

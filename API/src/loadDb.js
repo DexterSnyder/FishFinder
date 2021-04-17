@@ -1,14 +1,9 @@
 const fs = require('fs')
 const path = require('path')
 const Papa = require('papaparse')
-const _ = require('lodash')
 
-// const StockedEvent = require('./models/stockedEvent.model')
-// const Location = require('./models/location.model')
 const db = require('./models')
 
-// const { sequelize } = require('./models/stockedEvent.model')
-const { map } = require('lodash')
 ;(async () => {
 	const stockingFolder = './stocking_data'
 	const files = await fs.promises.readdir(stockingFolder)
@@ -61,7 +56,7 @@ const { map } = require('lodash')
 	const idMap = new Map()
 
 	const promises = []
-	map.forEach((value, key) => {
+	map.forEach(value => {
 		promises.push(
 			db.locations.create({
 				...value,

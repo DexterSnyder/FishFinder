@@ -1,4 +1,4 @@
-const { Sequelize, DataTypes } = require('sequelize')
+const { Sequelize } = require('sequelize')
 const getLocationModel = require('./location.model')
 const getSockingEvenModel = require('./stockedEvent.model')
 
@@ -11,7 +11,8 @@ const db = {}
 
 db.Sequelize = Sequelize
 db.sequelize = sequelize
-db.stockedEvents = db.locations = getLocationModel(sequelize)
+db.stockedEvents = getSockingEvenModel(sequelize)
+db.locations = getLocationModel(sequelize)
 
 db.locations.hasMany(db.stockedEvents)
 db.stockedEvents.belongsTo(db.locations)
