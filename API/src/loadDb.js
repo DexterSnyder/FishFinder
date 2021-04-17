@@ -13,11 +13,8 @@ const { map } = require('lodash')
 	const stockingFolder = './stocking_data'
 	const files = await fs.promises.readdir(stockingFolder)
 
-	await db.sequelize.sync({ force: true })
-
 	// Drop before we reload
-	// await db.stockedEvents.sync({ force: true })
-	// await db.locations.sync({ force: true })
+	await db.sequelize.sync({ force: true })
 
 	const map = new Map()
 
@@ -59,9 +56,6 @@ const { map } = require('lodash')
 				date: event['Date stocked'],
 			})
 		})
-
-		// console.log(`Waiting to write data for ${files[i]}`)
-		// await Promise.all(stockedEvents)
 	}
 
 	const idMap = new Map()
@@ -78,19 +72,6 @@ const { map } = require('lodash')
 	resolvedArray.forEach(({ dataValues }) => {
 		idMap.set(dataValues.waterName, dataValues.id)
 	})
-
-	console.log('###########################################################')
-
-	// promises.length = 0
-	// stockedEvents.forEach(stockEvent => {
-	// 	promises.push(
-	// 		db.stockedEvents.create({
-	// 			LocationId: idMap.get(stockEvent.waterName),
-	// 			...stockEvent,
-	// 		})
-	// 	)
-	// })
-	// await Promise.all(promises)
 
 	for (let i = 0; i < stockedEvents.length; i++) {
 		await db.stockedEvents.create({
