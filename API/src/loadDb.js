@@ -63,23 +63,35 @@ const db = require('./models')
 	await browser.close()
 
 	// Now the fun stuff, get the current data
-	const currentBrowser = await puppeteer.launch()
-	const currentPage = await currentBrowser.newPage()
-	await currentPage.goto('https://dwrapps.utah.gov/fishstocking/Fish')
-	await getTableData(currentPage, locationsMap, stockedEvents)
-	await currentBrowser.close()
+	// const currentBrowser = await puppeteer.launch()
+	// const currentPage = await currentBrowser.newPage()
+	// await currentPage.goto('https://dwrapps.utah.gov/fishstocking/Fish')
+	// await getTableData(currentPage, locationsMap, stockedEvents)
+	// await currentBrowser.close()
 
 	const idMap = new Map()
 
 	// Write to the database
 	const promises = []
 	locationsMap.forEach(value => {
+		if (!value.waterName) {
+			console.log('Missing water name')
+			console.log(value)
+			return
+		}
+		if (!value.county) {
+			console.log('Missing County')
+			console.log(value)
+			return
+		}
+
 		promises.push(
 			db.locations.create({
 				...value,
 			})
 		)
 	})
+
 	const resolvedArray = await Promise.all(promises)
 	resolvedArray.forEach(({ dataValues }) => {
 		idMap.set(dataValues.waterName, dataValues.id)
@@ -120,6 +132,8 @@ async function getTableData(page, locationsMap, stockedEvents) {
 
 	data = _.chunk(data, headers.length)
 
+	console.log(locationsMap)
+
 	data.forEach(row => {
 		const record = {}
 		row.forEach((cell, index) => {
@@ -128,7 +142,7 @@ async function getTableData(page, locationsMap, stockedEvents) {
 					if (!locationsMap.has(cell)) {
 						locationsMap.set(cell, {
 							waterName: cell,
-							county: row[_.findIndex(headers, 'County')], // figure out which index county is
+							county: row[headers.findIndex(x => x === 'County')], // figure out which index county is
 						})
 					}
 					record.waterName = cell
