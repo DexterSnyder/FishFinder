@@ -1,6 +1,8 @@
 const fs = require('fs')
 const path = require('path')
 const Papa = require('papaparse')
+const puppeteer = require('puppeteer')
+const _ = require('lodash')
 
 const db = require('./models')
 
@@ -11,7 +13,7 @@ const db = require('./models')
 	// Drop before we reload
 	await db.sequelize.sync({ force: true })
 
-	const map = new Map()
+	const locationsMap = new Map()
 
 	const stockedEvents = []
 	// C style loop so that we can await
@@ -35,8 +37,8 @@ const db = require('./models')
 
 		// Load the contents
 		events.forEach(event => {
-			if (!map.has(event['Water name'])) {
-				map.set(event['Water name'], {
+			if (!locationsMap.has(event['Water name'])) {
+				locationsMap.set(event['Water name'], {
 					waterName: event['Water name'],
 					county: event.County,
 				})
@@ -53,10 +55,25 @@ const db = require('./models')
 		})
 	}
 
+	// get 2020 data. Hopefully we can move this to a csv (gag) at some point
+	const browser = await puppeteer.launch()
+	const page = await browser.newPage()
+	await page.goto('https://dwrapps.utah.gov/fishstocking/Fish?y=2020')
+	await getTableData(page, locationsMap, stockedEvents)
+	await browser.close()
+
+	// Now the fun stuff, get the current data
+	const currentBrowser = await puppeteer.launch()
+	const currentPage = await currentBrowser.newPage()
+	await currentPage.goto('https://dwrapps.utah.gov/fishstocking/Fish')
+	await getTableData(currentPage, locationsMap, stockedEvents)
+	await currentBrowser.close()
+
 	const idMap = new Map()
 
+	// Write to the database
 	const promises = []
-	map.forEach(value => {
+	locationsMap.forEach(value => {
 		promises.push(
 			db.locations.create({
 				...value,
@@ -83,3 +100,59 @@ const db = require('./models')
 
 	console.log('Records have been created in the database')
 })()
+
+async function getTableData(page, locationsMap, stockedEvents) {
+	console.log('looking for selector')
+	await page.waitForSelector('#fishTable')
+	console.log('found')
+
+	const headers = await page.evaluate(() => {
+		// eslint-disable-next-line no-undef
+		const ths = Array.from(document.querySelectorAll('#fishTable tr th'))
+		return ths.map(th => th.innerText)
+	})
+
+	let data = await page.evaluate(() => {
+		// eslint-disable-next-line no-undef
+		const tds = Array.from(document.querySelectorAll('#fishTable tr td'))
+		return tds.map(td => td.innerText)
+	})
+
+	data = _.chunk(data, headers.length)
+
+	data.forEach(row => {
+		const record = {}
+		row.forEach((cell, index) => {
+			switch (headers[index]) {
+				case 'Water name':
+					if (!locationsMap.has(cell)) {
+						locationsMap.set(cell, {
+							waterName: cell,
+							county: row[_.findIndex(headers, 'County')], // figure out which index county is
+						})
+					}
+					record.waterName = cell
+					break
+				case 'County':
+					record.county = cell
+					break
+				case 'Species':
+					record.species
+					break
+				case 'Quantity':
+					record.quantity = cell
+					break
+				case 'Average length':
+					record.avgLength = cell
+					break
+				case 'Date stocked':
+					record.data = cell
+					break
+				default:
+					throw new Error('Key not found when parsing table')
+			}
+		})
+
+		stockedEvents.push(record)
+	})
+}
