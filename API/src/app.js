@@ -1,14 +1,16 @@
-const express = require("express");
+const express = require('express')
 
 // const userRouter = require('./routers/user')
 // const taskRouter = require('./routers/task')
 
-const stockedRouter = require("./routers/stocking");
+const stockedRouter = require('./routers/stocking')
+const userRouter = require('./routers/user')
 
-const app = express();
+const app = express()
 
-app.use("/", stockedRouter);
+app.use('/', stockedRouter)
+app.use('/user', userRouter)
 
-app.use(express.json());
+app.use(express.json())
 
-module.exports = app;
+module.exports = app

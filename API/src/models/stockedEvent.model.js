@@ -18,7 +18,7 @@ const getSockingEvenModel = sequelize => {
 			type: DataTypes.DOUBLE,
 		},
 		date: {
-			type: DataTypes.STRING,
+			type: DataTypes.DATEONLY,
 		},
 	})
 }

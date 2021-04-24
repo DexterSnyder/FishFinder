@@ -1,18 +1,18 @@
 const express = require('express')
 const router = new express.Router()
-const { Sequelize } = require('sequelize')
+// const { Sequelize } = require('sequelize')
 
 // For loading the Db -----------
-const fs = require('fs')
-const path = require('path')
-const Papa = require('papaparse')
-const StockedEvent = require('../models/stockedEvent')
-//-------------------------------
+// const fs = require('fs')
+// const path = require('path')
+// const Papa = require('papaparse')
+// const StockedEvent = require('../models/stockedEvent')
+// //-------------------------------
 
-const sequelize = new Sequelize({
-	dialect: 'sqlite',
-	storage: '../db/database.sqlite',
-})
+// const sequelize = new Sequelize({
+// 	dialect: 'sqlite',
+// 	storage: '../db/database.sqlite',
+// })
 
 router.get('/stocked', async (req, res) => {
 	res.send({ message: 'This is where stocked info will live' })
