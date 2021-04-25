@@ -2,7 +2,7 @@ const db = require('../models')
 const Location = db.locations
 const StockedEvent = db.stockedEvents
 
-exports.createLocation = location => {
+const createLocation = location => {
 	return Location.create({
 		...location,
 	})
@@ -14,7 +14,7 @@ exports.createLocation = location => {
 		})
 }
 
-exports.createStockedEvent = (locationId, stockedEvent) => {
+const createStockedEvent = (locationId, stockedEvent) => {
 	return StockedEvent.create({
 		locationId,
 		...stockedEvent,
@@ -29,7 +29,7 @@ exports.createStockedEvent = (locationId, stockedEvent) => {
 		})
 }
 
-exports.findLocationByIdWithStocked = locationID => {
+const findLocationByIdWithStocked = locationID => {
 	return Location.findByPk(locationID, { include: ['stockedEvents'] })
 		.then(location => {
 			return location
@@ -39,7 +39,7 @@ exports.findLocationByIdWithStocked = locationID => {
 		})
 }
 
-exports.findLocationById = locationID => {
+const findLocationById = locationID => {
 	return Location.findByPk(locationID)
 		.then(location => {
 			return location
@@ -49,7 +49,7 @@ exports.findLocationById = locationID => {
 		})
 }
 
-exports.findStockEventById = id => {
+const findStockEventById = id => {
 	return StockedEvent.findByPk(id, { include: ['location'] })
 		.then(stockedEvent => {
 			return stockedEvent
@@ -57,4 +57,12 @@ exports.findStockEventById = id => {
 		.catch(err => {
 			console.log('>> Error while finding comment: ', err)
 		})
+}
+
+module.export = {
+	createLocation,
+	createStockedEvent,
+	findLocationByIdWithStocked,
+	findLocationById,
+	findStockEventById,
 }

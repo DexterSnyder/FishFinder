@@ -1,6 +1,7 @@
 const { Sequelize } = require('sequelize')
 const getLocationModel = require('./location.model')
 const getSockingEvenModel = require('./stockedEvent.model')
+const getUserModel = require('./user.model')
 
 const sequelize = new Sequelize({
 	dialect: 'sqlite',
@@ -11,9 +12,15 @@ const db = {}
 
 db.Sequelize = Sequelize
 db.sequelize = sequelize
-db.stockedEvents = getSockingEvenModel(sequelize)
-db.locations = getLocationModel(sequelize)
 
+// define the stocking event
+db.stockedEvents = getSockingEvenModel(sequelize)
+// define the locations
+db.locations = getLocationModel(sequelize)
+// define user model
+db.users = getUserModel(sequelize)
+
+// Stocking and location relationship
 db.locations.hasMany(db.stockedEvents)
 db.stockedEvents.belongsTo(db.locations)
 

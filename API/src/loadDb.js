@@ -11,7 +11,9 @@ const db = require('./models')
 	const files = await fs.promises.readdir(stockingFolder)
 
 	// Drop before we reload
-	await db.sequelize.sync({ force: true })
+	// await db.sequelize.sync({ force: true })
+	await db.locations.sync({ force: true })
+	await db.stockedEvents.sync({ force: true })
 
 	const locationsMap = new Map()
 

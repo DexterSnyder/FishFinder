@@ -1,16 +1,14 @@
 const express = require('express')
 
-// const userRouter = require('./routers/user')
-// const taskRouter = require('./routers/task')
-
 const stockedRouter = require('./routers/stocking')
 const userRouter = require('./routers/user')
 
 const app = express()
 
+// Parses json in the body of a request
+app.use(express.json())
+
 app.use('/', stockedRouter)
 app.use('/user', userRouter)
-
-app.use(express.json())
 
 module.exports = app
