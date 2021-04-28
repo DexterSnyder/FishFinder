@@ -1,4 +1,7 @@
 const express = require('express')
+const cors = require('cors')
+const helmet = require('helmet')
+const morgan = require('morgan')
 
 require('dotenv').config()
 
@@ -6,6 +9,10 @@ const stockedRouter = require('./routers/stocking')
 const userRouter = require('./routers/user')
 
 const app = express()
+
+app.use(helmet())
+app.use(cors())
+app.use(morgan('combined'))
 
 // Parses json in the body of a request
 app.use(express.json())

@@ -1,5 +1,7 @@
 const express = require('express')
 const router = new express.Router()
+
+const checkJwt = require('../middleware/auth')
 // const { Sequelize } = require('sequelize')
 
 // For loading the Db -----------
@@ -16,6 +18,10 @@ const router = new express.Router()
 
 router.get('/stocked', async (req, res) => {
 	res.send({ message: 'This is where stocked info will live' })
+})
+
+router.get('/securedStocking', checkJwt, async (req, res) => {
+	res.send({ message: 'Coming from behind the firewall' })
 })
 
 // router.post('/createDb', async (req, res) => {
