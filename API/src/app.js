@@ -1,5 +1,7 @@
 const express = require('express')
 
+require('dotenv').config()
+
 const stockedRouter = require('./routers/stocking')
 const userRouter = require('./routers/user')
 

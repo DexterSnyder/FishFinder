@@ -1,10 +1,39 @@
 const db = require('../models')
-const User = db.users
+const jwt = require('jsonwebtoken')
 
-const createUser = user => {
-	// db.sequelize.sync({ alter: true })
-	return User.create({
-		...user,
+// Aliased here to make the code a little more intuitive
+const User = db.users
+const Token = db.tokens
+
+const createUser = async user => {
+	db.sequelize.sync({ alter: true })
+	console.log(process.env.JWT_SECRET)
+
+	return new Promise((resolve, reject) => {
+		User.create({
+			// create the user
+			...user,
+		})
+			.then(dbUser => {
+				// create the token
+				Token.create({
+					userId: dbUser.id,
+					token: jwt.sign({ _id: dbUser.id }, process.env.JWT_SECRET),
+				})
+					.then(token => {
+						resolve({
+							id: dbUser.id,
+							username: dbUser.username,
+							token: token.token,
+						})
+					})
+					.catch(err => {
+						reject(err)
+					})
+			})
+			.catch(err => {
+				reject(err)
+			})
 	})
 }
 

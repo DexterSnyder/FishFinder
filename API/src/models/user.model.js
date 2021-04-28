@@ -21,12 +21,6 @@ const getUserModel = sequelize => {
 	})
 
 	User.addHook('beforeSave', async user => {
-		// user.password = bcrypt.hash(
-		// 	user.password,
-		// 	process.env.SALT,
-		// 	function (err, hash) {}
-		// )
-		console.log('fired')
 		const salt = await bcrypt.genSalt(10)
 		const hash = await bcrypt.hash(user.password, salt)
 		user.password = hash
