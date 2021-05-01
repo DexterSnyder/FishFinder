@@ -1,39 +1,13 @@
 const db = require('../models')
-const jwt = require('jsonwebtoken')
 
 // Aliased here to make the code a little more intuitive
 const User = db.users
-const Token = db.tokens
 
 const createUser = async user => {
-	db.sequelize.sync({ alter: true })
-	console.log(process.env.JWT_SECRET)
+	// db.sequelize.sync({ force: true })
 
-	return new Promise((resolve, reject) => {
-		User.create({
-			// create the user
-			...user,
-		})
-			.then(dbUser => {
-				// create the token
-				Token.create({
-					userId: dbUser.id,
-					token: jwt.sign({ _id: dbUser.id }, process.env.JWT_SECRET),
-				})
-					.then(token => {
-						resolve({
-							id: dbUser.id,
-							username: dbUser.username,
-							token: token.token,
-						})
-					})
-					.catch(err => {
-						reject(err)
-					})
-			})
-			.catch(err => {
-				reject(err)
-			})
+	return User.create({
+		...user,
 	})
 }
 
@@ -41,17 +15,22 @@ const findUserById = userId => {
 	return User.findByPk(userId)
 }
 
-const findUserByName = username => {
-	console.log(username)
+const findUserByEmail = email => {
+	console.log(email)
 }
 
-const deleteUserByUsername = async ({ username }) => {
+const deleteUserByEmail = async ({ email }) => {
 	return new Promise((resolve, reject) => {
 		User.findOne({
-			where: { username: username },
+			where: { email: email },
 		})
 			.then(foundUser => {
-				resolve(foundUser.destroy())
+				foundUser
+					.destroy()
+					.then(() => {
+						resolve(foundUser)
+					})
+					.catch(err => reject(err))
 			})
 			.catch(err => reject(err))
 	})
@@ -60,6 +39,6 @@ const deleteUserByUsername = async ({ username }) => {
 module.exports = {
 	createUser,
 	findUserById,
-	findUserByName,
-	deleteUserByUsername,
+	findUserByName: findUserByEmail,
+	deleteUserByUsername: deleteUserByEmail,
 }

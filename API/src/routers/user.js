@@ -6,10 +6,8 @@ const userController = require('../controllers/user.controller')
 router.post('/add', async (req, res) => {
 	try {
 		const result = await userController.createUser({
-			username: req.body.username,
-			password: req.body.password,
+			email: req.body.email,
 		})
-
 		res.send({ result })
 	} catch (err) {
 		console.log(err)
@@ -19,23 +17,14 @@ router.post('/add', async (req, res) => {
 
 router.post('/delete', async (req, res) => {
 	try {
-		const result = await userController.deleteUserByUsername({
-			username: req.body.username,
+		await userController.deleteUserByEmail({
+			email: req.body.email,
 		})
-		console.log(result)
-		res.status(200).send()
+		res.status(200).send('user deleted')
 	} catch (err) {
 		console.log(err)
 		res.status(400).send()
 	}
-})
-
-router.post('/login', async (req, res) => {
-	res.send({ message: 'This is how to login a user' })
-})
-
-router.post('/logout', async (req, res) => {
-	res.send({ message: 'This is how to logout a user' })
 })
 
 router.patch('/update', async (req, res) => {
