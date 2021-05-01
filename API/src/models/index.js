@@ -2,7 +2,7 @@ const { Sequelize } = require('sequelize')
 const getLocationModel = require('./location.model')
 const getSockingEvenModel = require('./stockedEvent.model')
 const getUserModel = require('./user.model')
-const getSubscriptionModel = require('./stockedEvent.model')
+const getSubscriptionModel = require('./subscriptions.model')
 
 const sequelize = new Sequelize({
 	dialect: 'sqlite',

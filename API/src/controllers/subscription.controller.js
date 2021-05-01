@@ -8,13 +8,19 @@ const addSubscription = async ({ email, locationId }) => {
 	return new Promise((resolve, reject) => {
 		User.findOne({ where: { email: email } })
 			.then(user => {
+				// console.log(user)
+				console.log('**************')
+				console.log(locationId)
+				console.log(user.id)
+				console.log('*********************')
 				Subscription.create({
-					locationId,
-					userId: user.id,
+					LocationId: locationId,
+					UserId: user.id,
 				})
-			})
-			.then(user => {
-				resolve(user)
+					.then(sub => {
+						resolve(sub)
+					})
+					.catch(err => reject(err))
 			})
 			.catch(err => reject(err))
 	})
